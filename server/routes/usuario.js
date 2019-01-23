@@ -2,14 +2,15 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser')
 const Usuario = require('../models/usuario')
+const { verificaToken, verificaAdminRol } = require('../middlewares/autenticacion')
 const bcrypt = require('bcrypt')
 const underscore = require('underscore')
 app.use(bodyParser.urlencoded({ extended: false }))
 
 // parse application/json
 app.use(bodyParser.json())
-
-app.get('/usuario', function(req, res) {
+    //medio es middleware, con eso hacemos validaciones, en el middleware debo llamar al next
+app.get('/usuario', verificaToken, function(req, res) {
 
     let desde = Number(req.query.desde || 0);
     let limite = Number(req.query.limite || 5);
@@ -40,7 +41,7 @@ app.get('/usuario', function(req, res) {
 });
 
 
-app.post('/usuario', function(req, res) {
+app.post('/usuario', [verificaToken, verificaAdminRol], function(req, res) {
 
     let body = req.body;
 
@@ -72,7 +73,7 @@ app.post('/usuario', function(req, res) {
 
 });
 
-app.put('/usuario/:id', function(req, res) {
+app.put('/usuario/:id', [verificaToken, verificaAdminRol], function(req, res) {
     let id = req.params.id;
 
     //  let body = req.body;
@@ -105,7 +106,7 @@ app.put('/usuario/:id', function(req, res) {
 
 });
 
-app.delete('/usuario/:id', function(req, res) {
+app.delete('/usuario/:id', [verificaToken, verificaAdminRol], function(req, res) {
 
     let id = req.params.id;
 
